@@ -1,4 +1,3 @@
-    // Get the Sidebar
 var mySidebar = document.getElementById("mySidebar");
 
 // Get the DIV with overlay effect
@@ -21,7 +20,7 @@ function w3_close() {
   overlayBg.style.display = "none";
 }
     
-function numinput(a,b,c){
+function add(a,b,c){
         a = parseInt(a, 10);
         b = parseInt(b, 10);
         c = parseInt(c, 10);
@@ -29,148 +28,85 @@ function numinput(a,b,c){
         res = a + b + c ;
         return res;
 }
-    
-function counter() {
-  var i = 0;
-  // This block will be executed 100 times.
-  setInterval(function() {
-    API = "";
-    Link = API+"/stats/";
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", Link, false ); // false for synchronous request
-    xmlHttp.send( null );
-    Search_word = document.getElementById("Search_word").value;
-    //var chart_image = new File("/Charts/pieChart_"+Search_word+".png");
-    //const fs = require("fs");
 
-    //const path = "./Charts/pieChart_"+Search_word+".png";
-    // var image = new Image();
-    // var url_image = "./Charts/pieChart_"+Search_word+".png";
-    
-    // image.src = url_image;
-    // if (image.width != 0) {
-    //     console.log("enter if");
-    //     document.getElementById('image_chart').style.visibility = 'visible';
-    //     document.getElementById('img').src = "./Charts/pieChart_"+ Search_word + ".png";
-    //     document.getElementById('img').style = "width:100%";
-    // }else{
-    //     console.log("enter else");
-    //     document.getElementById('image_chart').style.visibility = 'hidden';
-    // }
-    text = xmlHttp.responseText;
-    json = JSON.parse(text);
-    console.log(json);
-    
+function Calculate_stats(json){
     neg = json.Total[0].negative;
     document.getElementById("negative").innerHTML = neg;
     pos = json.Total[0].positive
     document.getElementById("positive").innerHTML = pos;
     neu = json.Total[0].neutral
     document.getElementById("neutral").innerHTML = neu;
-    total = numinput(pos,neg,neu);
+    total = add(pos,neg,neu);
     document.getElementById("total").innerHTML = total;
+    return [neg,pos,neu,total];
+}
+
+function location_stats(number,percentages){
+  stats = ["neg","pos","neu"]
+  for(i=0;i<stats.length;i++){
+      id = "loc_"+stats[i]+"_"+number;
+      document.getElementById(id).innerHTML = percentages[i]+ "%";
+      document.getElementById(id).style.width = (percentages[i] - 1) + "%";
+      document.getElementById(id + "_table").innerHTML = percentages[i]+ "%";
+  }
+
+
+}
+function process_tweet(id,json){
+    tweet = json.Tweets[id-1].tweet
+    document.getElementById("tweet_" + id).innerHTML = tweet;
+    po = json.Tweets[id-1].polarity;
+    document.getElementById("tr_"+id).style.color = "white";
+    document.getElementById("tr_"+id).style.fontWeight = "bold"
+    if(po == "negative"){
+        document.getElementById("icon_"+id).className = "fa fa-thumbs-o-down w3-large";
+        document.getElementById("tr_"+id).style.background = "#FF0000";
+        id="tr_1"
+    }else if(po == "positive"){
+        document.getElementById("icon_"+id).className = "fa fa-thumbs-o-up w3-large";
+        document.getElementById("tr_"+id).style.background = "#008000";
+    }else{
+        document.getElementById("icon_"+id).className = "fa fa-hand-paper-o w3-large";
+        document.getElementById("tr_"+id).style.background = "#0000FF";
+    }
+    time = json.Tweets[0].time;
+    document.getElementById("time_"+id).innerHTML = time;
+    loc_tweet = json.Tweets[0].loc;
+    document.getElementById("loc_tweet_"+id).innerHTML = loc_tweet;
+
+}
+function load_tweets(number_of_tweets,json){
+    for(i = 1 ; i < number_of_tweets+1 ; i++){
+      try {
+        process_tweet(i,json)
+      }
+      catch(err) {
+        console.log("error");
+      }
+    }
+
+}
+function Realtime() {
+  var i = 0;
+  // This block will be executed to get realtime impression.
+  setInterval(function() {
+    API = "";
+    Link = API+"/stats/";
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", Link, false ); // false for synchronous request
+    xmlHttp.send( null );
+    // Search_word = document.getElementById("Search_word").value;
+    text = xmlHttp.responseText;
+    json = JSON.parse(text);
+    console.log(json);
+    [neg,pos,neu,total] = Calculate_stats(json);
     
     pos_percent =  Math.round((pos/total)*100);
     neg_percent =  Math.round((neg/total)*100);
     neu_percent =  Math.round((neu/total)*100);
-
-    document.getElementById("loc_neg_1").innerHTML = neg_percent+ "%";
-    document.getElementById("loc_pos_1").innerHTML = pos_percent+ "%";
-    document.getElementById("loc_neu_1").innerHTML = neu_percent+ "%";
-    
-    document.getElementById("loc_neg_1").style.width = (neg_percent - 1) + "%";
-    document.getElementById("loc_pos_1").style.width = (pos_percent - 1) + "%";
-    document.getElementById("loc_neu_1").style.width = (neu_percent - 1) + "%";
-    
-    document.getElementById("loc_1_neg").innerHTML = neg_percent+ "%";
-    document.getElementById("loc_1_pos").innerHTML = pos_percent+ "%";
-    document.getElementById("loc_1_neu").innerHTML = neu_percent+ "%";
-    
-    tweet_1 = json.Tweets[0].tweet_0
-    document.getElementById("tweet_1").innerHTML = tweet_1;
-    po_1 = json.Tweets[0].polarity_0;
-    //document.getElementById("po_1").innerHTML = po_1;
-    if(po_1 == "negative"){
-        document.getElementById("icon_1").className = "fa fa-thumbs-o-down w3-red w3-large";
-    }else if(po_1 == "positive"){
-        document.getElementById("icon_1").className = "fa fa-thumbs-o-up w3-teal w3-large";
-    }else{
-        document.getElementById("icon_1").className = "fa w3-large fa-hand-paper-o w3-blue";
-    }
-    time_1 = json.Tweets[0].time_0;
-    document.getElementById("time_1").innerHTML = time_1;
-    loc_tweet_1 = json.Tweets[0].loc_0;
-    document.getElementById("loc_tweet_1").innerHTML = loc_tweet_1;
-
-    tweet_2 = json.Tweets[1].tweet_1
-    document.getElementById("tweet_2").innerHTML = tweet_2;
-    po_2 = json.Tweets[1].polarity_1;
-    //document.getElementById("po_2").innerHTML = po_2;
-    if(po_2 == "negative"){
-        document.getElementById("icon_2").className = "fa fa-thumbs-o-down w3-red w3-large";
-    }else if(po_2 == "positive"){
-        document.getElementById("icon_2").className = "fa fa-thumbs-o-up w3-teal w3-large";
-    }else{
-        document.getElementById("icon_2").className = "fa w3-large fa-hand-paper-o w3-blue";
-    }
-    time_2 = json.Tweets[1].time_1;
-    document.getElementById("time_2").innerHTML = time_2;
-    loc_tweet_2 = json.Tweets[1].loc_1;
-    document.getElementById("loc_tweet_2").innerHTML = loc_tweet_2;
-    
-    tweet_3 = json.Tweets[2].tweet_2
-    document.getElementById("tweet_3").innerHTML = tweet_3;
-    po_3 = json.Tweets[2].polarity_2;
-    //document.getElementById("po_3").innerHTML = po_3;
-    if(po_3 == "negative"){
-        document.getElementById("icon_3").className = "fa fa-thumbs-o-down w3-red w3-large";
-    }else if(po_3 == "positive"){
-        document.getElementById("icon_3").className = "fa fa-thumbs-o-up w3-teal w3-large";
-    }else{
-        document.getElementById("icon_3").className = "fa w3-large fa-hand-paper-o w3-blue";
-    }
-    time_3 = json.Tweets[2].time_2;
-    document.getElementById("time_3").innerHTML = time_3;
-    loc_tweet_3 = json.Tweets[2].loc_2;
-    document.getElementById("loc_tweet_3").innerHTML = loc_tweet_3;
-    
-    tweet_4 = json.Tweets[3].tweet_3
-    document.getElementById("tweet_4").innerHTML = tweet_4;
-    po_4 = json.Tweets[3].polarity_3;
-    //document.getElementById("po_4").innerHTML = po_4;
-    if(po_4 == "negative"){
-        document.getElementById("icon_4").className = "fa fa-thumbs-o-down w3-red w3-large";
-    }else if(po_4 == "positive"){
-        document.getElementById("icon_4").className = "fa fa-thumbs-o-up w3-teal w3-large";
-    }else{
-        document.getElementById("icon_4").className = "fa w3-large fa-hand-paper-o w3-blue";
-    }
-    time_4 = json.Tweets[3].time_3;
-    document.getElementById("time_4").innerHTML = time_4;
-    loc_tweet_4 = json.Tweets[3].loc_3;
-    document.getElementById("loc_tweet_4").innerHTML = loc_tweet_4;
-    
-    tweet_5 = json.Tweets[4].tweet_4
-    document.getElementById("tweet_5").innerHTML = tweet_5;
-    po_5 = json.Tweets[4].polarity_4;
-    //document.getElementById("po_5").innerHTML = po_5;
-    if(po_5 == "negative"){
-        document.getElementById("icon_5").className = "fa fa-thumbs-o-down w3-red w3-large";
-    }else if(po_5 == "positive"){
-        document.getElementById("icon_5").className = "fa fa-thumbs-o-up w3-teal w3-large";
-    }else{
-        document.getElementById("icon_5").className = "fa w3-large fa-hand-paper-o w3-blue";
-    }
-    time_5 = json.Tweets[4].time_4;
-    document.getElementById("time_5").innerHTML = time_5;
-    loc_tweet_5 = json.Tweets[4].loc_4;
-    document.getElementById("loc_tweet_5").innerHTML = loc_tweet_5;
-    var data = anychart.data.set([
-    ['ايجابي', pos],
-    ['متعادل',neu],
-    ['سلبي', neg]
-    ]);
-    pie_chart(data);
+    location_stats(1,[neg_percent,pos_percent,neu_percent]);
+    load_tweets(5,json);    
+    pie_chart([neg,pos,neu]);
     
   }, 3000);
 } // End
@@ -186,20 +122,25 @@ function search() {
     if(xmlHttp.responseText == 1){
         console.log("listening");
     }
-    counter();
+    Realtime();
 
 }
-function pie_chart(data){
-
+function pie_chart(results){
+  var data = anychart.data.set([
+    ['ايجابي', results[1]],
+    ['متعادل',results[2]],
+    ['سلبي', results[0]]
+    ]);
 var chart = anychart.pie(data);
 chart.innerRadius('55%')
 var palette = anychart.palettes.distinctColors();
 document.getElementById("image_chart").innerHTML = "";
 // set the colors according to the brands
 palette.items([
-  { color: '#1BA737' },
-  { color: '#F3E514' },
-  { color: '#A7331B' },
+
+  { color: "#008000" },
+  { color: "#0000FF"},
+  { color: "#FF0000" },
   { color: '#A0521B' }
 ]);
 
@@ -306,3 +247,168 @@ chart.draw();
     map_data.push({ id: "SA", value: 0, title: "Saudi Arabia" })
     map_data.push({ id: "CN", value: -100, title: "China" })
     map_chart(map_data);
+    
+    anychart.onDocumentReady(function () {
+
+    // create a data set
+    var data = anychart.data.set([
+    {x: "سلبى", value: 20,
+       normal:{
+           fill: "#FF0000",
+           stroke: null,
+           label: {enabled: true}
+         },
+       hovered:  {
+           fill: "#FF0000",
+           stroke: null,
+           label: {enabled: true}
+         },
+       selected: {
+           fill: "#FF0000",
+           stroke: null,
+           label: {enabled: true}
+         }
+      },
+      {x: "متعادل", value: 50,
+       normal:   {
+           fill: "#0000FF",
+           stroke: null,
+           label: {enabled: true}
+         },
+       hovered:  {
+           fill: "#0000FF",
+           stroke: null,
+           label: {enabled: true}
+         },
+       selected: {
+           fill: "#0000FF",
+           stroke: null,
+           label: {enabled: true}
+         }
+      },
+      {x: "ايجابى", value: 30,
+       normal:   {
+           fill: "#008080",
+           stroke: null,
+           label: {enabled: true}
+         },
+       hovered:  {
+           fill: "#008080",
+           stroke: null,
+           label: {enabled: true}
+         },
+       selected: {
+           fill: "#008080",
+           stroke: null,
+           label: {enabled: true}
+         }
+      }
+    ]);
+   
+    // create a chart
+    var chart = anychart.bar();
+
+    // create a bar series and set the data
+    var series = chart.bar(data);
+
+    // set the chart title
+    chart.title("النسبة لكل تصنيف");
+
+    // set the titles of the axes
+   // chart.xAxis().title("التصنيف");
+    //chart.yAxis().title("النسبة");
+    chart.padding(30);
+
+    // set the container id
+    chart.container("bar_chart");
+
+    // initiate drawing the chart
+    chart.draw();
+});
+anychart.onDocumentReady(function () {
+    var data = anychart.data.set([
+/*
+["يناير", 200, 180,50],
+    ["فبراير", 289, 290,100],
+    ["مارس", 197, 370,70],
+    ["ابريل", 210, 400,50],
+    ["مايو", 220, 120,60],
+    ["يونيو", 215, 214,30],
+    ["يوليو", 209, 153,70],
+    ["اغسطس", 357, 257,80],
+    ["سبتمبر", 333, 183,30],
+    ["اكتوبر", 218, 236,300],
+    ["نوفمبر", 289, 147,80],
+    ["ديسمبر", 266, 368,80]
+        ]);*/
+["Jan", 200, 180,50],
+    ["Feb", 289, 290,100],
+    ["Mar", 197, 370,70],
+    ["Apr", 210, 400,50],
+    ["May", 220, 120,60],
+    ["Jun", 215, 214,30],
+    ["Jul", 209, 153,70],
+    ["Aug", 357, 257,80],
+    ["Sep", 333, 183,30],
+    ["Oct", 218, 236,300],
+    ["Nov", 289, 147,80],
+    ["Dec", 266, 368,80]
+        ]);
+
+   
+    // map the data
+    var seriesData_1 = data.mapAs({x: 0, value: 1});
+    var seriesData_2 = data.mapAs({x: 0, value: 2});
+    var seriesData_3 = data.mapAs({x: 0, value: 3});
+
+    // create a chart
+    var chart = anychart.column();
+
+    // create the first series, set the data and name
+    var series1 = chart.column(seriesData_1);
+
+    // configure the visual settings of the first series
+    series1.normal().fill("#008080", 0.8);
+    series1.hovered().fill("#008080", 0.7);
+    series1.selected().fill("#008080", 0.7);
+    
+   // create the first series, set the data and name
+    var series2 = chart.column(seriesData_2);
+
+    // configure the visual settings of the first series
+    series2.normal().fill("#0000FF", 0.8);
+    series2.hovered().fill("#0000FF", 0.7);
+    series2.selected().fill("#0000FF", 0.7);
+    
+
+
+// create the first series, set the data and name
+    var series3 = chart.column(seriesData_3);
+
+    // configure the visual settings of the first series
+    series3.normal().fill("#FF0000", 0.8);
+    series3.hovered().fill("#FF0000", 0.7);
+    series3.selected().fill("#FF0000", 0.7);
+   
+    
+    // set the chart title
+    chart.title("النسب فى شهور السنه");
+    chart.padding(30);
+    // set the padding between bars
+    chart.barsPadding(0);
+
+    // set the padding between bar groups
+    chart.barGroupsPadding(1);
+// adjusting axes labels
+//  chart.yAxis().labels().rotation(-90);
+ // chart.yAxis().labels().padding(0,5,0,5);
+
+  chart.xAxis().labels().rotation(-90);
+  //chart.xAxis().labels().padding(5,0,10,30);
+  
+    // set the container id
+    chart.container("vertical_bar_chart");
+
+    // initiate drawing the chart
+    chart.draw();
+});
