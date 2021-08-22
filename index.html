@@ -909,22 +909,16 @@
     API = "";
     Search_word = document.getElementById("word").value;
     console.log(Search_word);
-    
-    Realtime();
-    }
-    
- function Realtime() {
-  var i = 0;
-  // This block will be executed to get realtime impression.
-  setInterval(function() {
-    API = "";
-    Link = API+"/results";
+    Link = API+"/put/"+Search_word;
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", Link, false ); // false for synchronous request
     xmlHttp.send( null );
+    console.log(xmlHttp.responseText); 
+    if(xmlHttp.responseText == 1){
+        console.log("listening");
+    }
+    }
     
-  }, 3000);
-} // End
   </script>
 
 </body>
