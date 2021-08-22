@@ -1291,6 +1291,7 @@
         document.getElementsByClassName("fa-calculator ")[0].setAttribute("style", "color:" + total_color + " !important; border-color:" + total_color + " !important;");
     </script>
     <script >
+       window.onload = get_word;
         //  change
         function add(a,b,c){
                 a = parseInt(a, 10);
@@ -1447,6 +1448,16 @@
 
         }
 
+        function get_word(){
+            API = "";
+            Link = API+"/get_word";
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open( "GET", Link, false ); // false for synchronous request
+            xmlHttp.send( null );
+            console.log(xmlHttp.responseText); 
+            Search_word = xmlHttp.responseText;
+            document.getElementById("Sear_Word").innerHTML = Search_word;
+        }
 
 
     </script>
