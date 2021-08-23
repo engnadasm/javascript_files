@@ -906,17 +906,19 @@
   
   <script>
     function search(){
-    API = "";
-    Search_word = document.getElementById("word").value;
-    console.log(Search_word);
-    Link = API+"/put/"+Search_word;
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", Link, false ); // false for synchronous request
-    xmlHttp.send( null );
-    console.log(xmlHttp.responseText); 
-    if(xmlHttp.responseText == 1){
-        console.log("listening");
-    }
+      active_tunnels = ngrok.get_tunnels()
+      console.log(active_tunnels);
+      API = "";
+      Search_word = document.getElementById("word").value;
+      console.log(Search_word);
+      Link = API+"/put/"+Search_word;
+      var xmlHttp = new XMLHttpRequest();
+      xmlHttp.open( "GET", Link, false ); // false for synchronous request
+      xmlHttp.send( null );
+      console.log(xmlHttp.responseText); 
+      if(xmlHttp.responseText == 1){
+          console.log("listening");
+      }
     }
     
   </script>
